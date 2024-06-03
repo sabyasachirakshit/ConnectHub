@@ -17,32 +17,44 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-// Store connected users
-let connectedUsers = [];
+let users = [];
 
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
-  
-  // Add new user to the connected users list
-  connectedUsers.push(socket.id);
 
-  // Notify the user about their connection
-  socket.emit('welcome', 'Welcome to the stranger chat!');
+  socket.on('register', ({ userId, interests }) => {
+    users.push({ id: socket.id, userId, interests, socket });
+    matchUser(socket);
+  });
 
-  // Handle chat messages
   socket.on('sendMessage', (message) => {
-    const recipient = connectedUsers.find((id) => id !== socket.id);
+    const recipient = users.find((user) => user.socket === socket).match;
     if (recipient) {
-      io.to(recipient).emit('receiveMessage', message);
+      recipient.emit('receiveMessage', message);
     }
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
-    connectedUsers = connectedUsers.filter((id) => id !== socket.id);
+    users = users.filter((user) => user.id !== socket.id);
   });
 });
+
+const matchUser = (socket) => {
+  const currentUser = users.find((user) => user.socket === socket);
+  const potentialMatches = users.filter((user) => {
+    if (user.socket === socket || user.match) return false;
+    return currentUser.interests.some((interest) => user.interests.includes(interest));
+  });
+
+  if (potentialMatches.length > 0) {
+    const match = potentialMatches[0];
+    currentUser.match = match.socket;
+    match.match = socket;
+    socket.emit('matched', { userId: match.userId, interests: match.interests });
+    match.socket.emit('matched', { userId: currentUser.userId, interests: currentUser.interests });
+  }
+};
 
 app.get('/', (req, res) => {
   res.send('Server is running');
