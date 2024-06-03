@@ -23,14 +23,22 @@ io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
   socket.on('register', ({ userId, interests }) => {
-    users.push({ id: socket.id, userId, interests, socket });
-    matchUser(socket);
+    if (users.find(user => user.userId === userId)) {
+      socket.emit('error', 'User ID already exists. Please choose another one.');
+    } else {
+      users.push({ id: socket.id, userId, interests, socket });
+      socket.emit("connected");
+      matchUser(socket);
+    }
   });
 
   socket.on('sendMessage', (message) => {
-    const recipient = users.find((user) => user.socket === socket).match;
-    if (recipient) {
-      recipient.emit('receiveMessage', message);
+    const sender = users.find((user) => user.id === socket.id);
+    if (sender && sender.match) {
+      const recipient = users.find((user) => user.id === sender.match);
+      if (recipient) {
+        recipient.socket.emit('receiveMessage', message);
+      }
     }
   });
 
@@ -41,16 +49,16 @@ io.on('connection', (socket) => {
 });
 
 const matchUser = (socket) => {
-  const currentUser = users.find((user) => user.socket === socket);
+  const currentUser = users.find((user) => user.id === socket.id);
   const potentialMatches = users.filter((user) => {
-    if (user.socket === socket || user.match) return false;
+    if (user.id === socket.id || user.match) return false;
     return currentUser.interests.some((interest) => user.interests.includes(interest));
   });
 
   if (potentialMatches.length > 0) {
     const match = potentialMatches[0];
-    currentUser.match = match.socket;
-    match.match = socket;
+    currentUser.match = match.id;
+    match.match = socket.id;
     socket.emit('matched', { userId: match.userId, interests: match.interests });
     match.socket.emit('matched', { userId: currentUser.userId, interests: currentUser.interests });
   }
