@@ -136,7 +136,7 @@ function App() {
               </label>
             ))}
           </div>
-          <button onClick={connectToChat}>Connect</button>
+          <button onClick={connectToChat} style={{width:"30%"}}>Connect</button>
           {error && <p className="error">{error}</p>}
         </div>
       ) : (

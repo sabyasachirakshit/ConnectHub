@@ -28,6 +28,7 @@ body {
 .input-container input {
   width: 95%;
   padding: 10px;
+  height:16px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -51,7 +52,8 @@ body {
 
 .connect-container button,
 .input-container button {
-  width: 100%;
+  width: 19%;
+  height:36px;
   padding: 10px;
   background-color: #007bff;
   color: white;
