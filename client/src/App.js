@@ -7,14 +7,25 @@ const socket = io("http://localhost:5000");
 function App() {
   const [userId, setUserId] = useState("");
   const [interests, setInterests] = useState([]);
+  const [msg,setMsg]=useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  //eslint-disable-next-line
   const [matchedUser, setMatchedUser] = useState(null);
-  const [error,setError]=useState(null);
+  const [error, setError] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
 
-  const availableInterests = ["Sports", "Music", "Movies", "Tech", "Travel"];
+  const availableInterests = [
+    "Sports",
+    "Music",
+    "Movies",
+    "Tech",
+    "Travel",
+    "Religion",
+    "Astronomy",
+    "Science",
+  ];
 
   useEffect(() => {
     socket.on("welcome", (message) => {
@@ -47,6 +58,7 @@ function App() {
 
     socket.on("connected", () => {
       console.log("Connected to server");
+      setMsg("Connected to server. Finding Chat Partner..");
       setConnecting(true);
       setConnected(true);
     });
@@ -129,7 +141,7 @@ function App() {
       ) : (
         <div className="chat-container">
           {connecting ? (
-            <>Connecting to server...</>
+            <>{msg}</>
           ) : (
             <div className="messages">
               {messages.map((msg, index) => (
