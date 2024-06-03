@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
-import { Button, Modal } from "antd";
+import { Button, Modal, Checkbox } from "antd";
 import "./App.css";
 
 const socket = io("http://localhost:5000");
@@ -16,6 +16,9 @@ function App() {
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [agreement, setAgreement] = useState(
+    localStorage.getItem("agreedToDisclaimer") === "true"
+  );
 
   const availableInterests = [
     "Sports",
@@ -89,10 +92,12 @@ function App() {
   }, []);
 
   const connectToChat = () => {
-    if (userId.trim() && interests.length > 0) {
+    if (userId.trim() && interests.length > 0 && agreement) {
       socket.emit("register", { userId, interests });
     } else {
-      setError("Please enter a user ID and select at least one interest.");
+      setError(
+        "Please enter a user ID, select at least one interest, and agree to the disclaimer."
+      );
     }
   };
 
@@ -119,11 +124,26 @@ function App() {
     setIsModalVisible(false);
   };
 
+  const handleCheckboxChange = (e) => {
+    const isChecked = e.target.checked;
+    setAgreement(isChecked);
+    if (isChecked) {
+      localStorage.setItem("agreedToDisclaimer", "true");
+    } else {
+      localStorage.removeItem("agreedToDisclaimer");
+    }
+  };
+
   return (
     <div className="App">
       <div
         className="disclaimer"
-        style={{ display: "flex", width: "100%", justifyContent: "center", marginTop: 5 }}
+        style={{
+          display: "flex",
+          width: "100%",
+          justifyContent: "center",
+          marginTop: 5,
+        }}
       >
         <Button onClick={showModal}>Read Disclaimer</Button>
       </div>
@@ -156,6 +176,12 @@ function App() {
               </label>
             ))}
           </div>
+          <Checkbox
+            checked={agreement}
+            onChange={handleCheckboxChange}
+          >
+            I agree to the terms and conditions
+          </Checkbox>
           <button onClick={connectToChat} style={{ width: "30%" }}>
             Connect
           </button>
@@ -204,7 +230,11 @@ function App() {
           </Button>,
         ]}
       >
-        <p>Please be cautious when chatting with strangers online. Do not share personal information such as your full name, address, phone number, or financial details. Always prioritize your safety and privacy.</p>
+        <p>
+          Please be cautious when chatting with strangers online. Do not share
+          personal information such as your full name, address, phone number, or
+          financial details. Always prioritize your safety and privacy.
+        </p>
       </Modal>
     </div>
   );
