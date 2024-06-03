@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
+import { Button, Modal } from "antd";
 import "./App.css";
 
 const socket = io("http://localhost:5000");
@@ -14,6 +15,7 @@ function App() {
   const [error, setError] = useState(null);
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const availableInterests = [
     "Sports",
@@ -105,8 +107,26 @@ function App() {
     }
   };
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <div className="App">
+      <div
+        className="disclaimer"
+        style={{ display: "flex", width: "100%", justifyContent: "center", marginTop: 5 }}
+      >
+        <Button onClick={showModal}>Read Disclaimer</Button>
+      </div>
       {!connected ? (
         <div className="connect-container">
           <input
@@ -136,7 +156,9 @@ function App() {
               </label>
             ))}
           </div>
-          <button onClick={connectToChat} style={{width:"30%"}}>Connect</button>
+          <button onClick={connectToChat} style={{ width: "30%" }}>
+            Connect
+          </button>
           {error && <p className="error">{error}</p>}
         </div>
       ) : (
@@ -170,6 +192,20 @@ function App() {
           </div>
         </div>
       )}
+
+      <Modal
+        title="Security Disclaimer"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="ok" onClick={handleOk}>
+            OK
+          </Button>,
+        ]}
+      >
+        <p>Please be cautious when chatting with strangers online. Do not share personal information such as your full name, address, phone number, or financial details. Always prioritize your safety and privacy.</p>
+      </Modal>
     </div>
   );
 }
