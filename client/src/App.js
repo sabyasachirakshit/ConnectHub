@@ -56,11 +56,22 @@ function App() {
       setConnecting(false);
     });
 
+    socket.on("chatPartnerDisconnected", (message) => {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { user: "System", text: message },
+      ]);
+      setMatchedUser(null);
+      setConnecting(false);
+    });
+
     return () => {
       socket.off("welcome");
       socket.off("receiveMessage");
       socket.off("matched");
       socket.off("connected");
+      socket.off("error");
+      socket.off("chatPartnerDisconnected");
     };
   }, []);
 
