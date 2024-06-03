@@ -1,35 +1,82 @@
-.connect-container {
+/* App.css */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 20px;
-}
-
-.interests {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  margin: 10px 0;
-}
-
-.interests label {
-  margin: 5px 0;
-}
-
-.chat-container {
-  display: flex;
-  flex-direction: column;
   height: 100vh;
-  justify-content: space-between;
+}
+
+.App {
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 400px;
+  max-width: 90%;
+}
+
+.connect-container,
+.chat-container {
   padding: 20px;
-  max-width: 600px;
-  margin: 0 auto;
+}
+
+.connect-container input,
+.input-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.connect-container .interests {
+  margin-bottom: 10px;
+}
+
+.connect-container .interests label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.connect-container .interests input {
+  margin-right: 10px;
+}
+
+.connect-container button,
+.input-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.connect-container button:hover,
+.input-container button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 .messages {
-  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 20px;
 }
 
 .message {
@@ -44,17 +91,23 @@
   text-align: left;
 }
 
+.message strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
 .input-container {
   display: flex;
+  gap: 10px;
 }
 
 .input-container input {
-  flex-grow: 1;
-  padding: 10px;
-  font-size: 16px;
+  flex: 1;
 }
 
-.input-container button {
-  padding: 10px;
-  font-size: 16px;
+@media (max-width: 600px) {
+  .App {
+    width: 100%;
+    border-radius: 0;
+  }
 }

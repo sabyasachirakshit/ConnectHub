@@ -7,10 +7,9 @@ const socket = io("http://localhost:5000");
 function App() {
   const [userId, setUserId] = useState("");
   const [interests, setInterests] = useState([]);
-  const [msg,setMsg]=useState("");
+  const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  //eslint-disable-next-line
   const [matchedUser, setMatchedUser] = useState(null);
   const [error, setError] = useState(null);
   const [connecting, setConnecting] = useState(false);
@@ -58,7 +57,7 @@ function App() {
 
     socket.on("connected", () => {
       console.log("Connected to server");
-      setMsg("Connected to server. Finding Chat Partner..");
+      setMsg("Connected to server. Finding Chat Partner...");
       setConnecting(true);
       setConnected(true);
     });
@@ -90,6 +89,8 @@ function App() {
   const connectToChat = () => {
     if (userId.trim() && interests.length > 0) {
       socket.emit("register", { userId, interests });
+    } else {
+      setError("Please enter a user ID and select at least one interest.");
     }
   };
 
@@ -141,7 +142,7 @@ function App() {
       ) : (
         <div className="chat-container">
           {connecting ? (
-            <>{msg}</>
+            <p>{msg}</p>
           ) : (
             <div className="messages">
               {messages.map((msg, index) => (
@@ -163,6 +164,7 @@ function App() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+              placeholder="Type a message..."
             />
             <button onClick={sendMessage}>Send</button>
           </div>
