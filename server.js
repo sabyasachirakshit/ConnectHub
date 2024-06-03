@@ -65,10 +65,12 @@ const matchUser = (socket) => {
 
   if (potentialMatches.length > 0) {
     const match = potentialMatches[0];
+    const sharedInterests = currentUser.interests.filter(interest => match.interests.includes(interest));
+
     currentUser.match = match.id;
     match.match = socket.id;
-    socket.emit('matched', { userId: match.userId, interests: match.interests });
-    match.socket.emit('matched', { userId: currentUser.userId, interests: currentUser.interests });
+    socket.emit('matched', { userId: match.userId, interests: sharedInterests });
+    match.socket.emit('matched', { userId: currentUser.userId, interests: sharedInterests });
   }
 };
 
