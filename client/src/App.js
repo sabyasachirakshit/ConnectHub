@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
 import { clean } from "../node_modules/profanity-cleaner/dist/profanity-cleaner";
-import "./App.css";
 
 const socket = io(
   process.env.PROD_URL ? process.env.PROD_URL : "http://localhost:5000"
@@ -35,6 +34,7 @@ function App() {
     "Religion",
     "Astronomy",
     "Science",
+    "Default",
   ];
 
   useEffect(() => {
@@ -47,6 +47,14 @@ function App() {
     } else {
       setUserId(storedUserId);
     }
+
+    // Retrieve interests from local storage
+    const storedInterests = JSON.parse(localStorage.getItem("interests")) || [];
+    if (storedInterests.length === 0) {
+      // If no interests are saved, default to "Default"
+      storedInterests.push("Default");
+    }
+    setInterests(storedInterests);
 
     socket.on("welcome", (message) => {
       setMessages((prevMessages) => [
@@ -168,6 +176,19 @@ function App() {
     }
   };
 
+  const handleInterestChange = (interest) => {
+    setInterests((prev) => {
+      let newInterests;
+      if (prev.includes(interest)) {
+        newInterests = prev.filter((i) => i !== interest);
+      } else {
+        newInterests = [...prev, interest];
+      }
+      localStorage.setItem("interests", JSON.stringify(newInterests));
+      return newInterests;
+    });
+  };
+
   return (
     <div className="App" style={{ padding: 0, margin: 0 }}>
       <div
@@ -183,28 +204,17 @@ function App() {
       </div>
       {!connected ? (
         <div className="connect-container">
-          {/* <input
-            type="text"
-            placeholder="Enter your user ID"
-            value={userId}
-            readOnly
-          /> */}
-          <div className="interests">
+          <div
+            className="interests"
+            style={{ display: "flex", gap: 10, justifyContent: "center" }}
+          >
             {availableInterests.map((interest) => (
               <label key={interest}>
                 <input
                   type="checkbox"
                   value={interest}
                   checked={interests.includes(interest)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setInterests((prev) => [...prev, interest]);
-                    } else {
-                      setInterests((prev) =>
-                        prev.filter((i) => i !== interest)
-                      );
-                    }
-                  }}
+                  onChange={() => handleInterestChange(interest)}
                 />
                 {interest}
               </label>
@@ -262,10 +272,7 @@ function App() {
         ]}
       >
         <p>
-          Please be cautious when chatting with strangers online. Do not share
-          personal information such as your full name, address, phone number, or
-          financial details. Always prioritize your safety and privacy.
-        </p>
+          Please be cautious when chatting with strangers online.  </p>
       </Modal>
     </div>
   );
