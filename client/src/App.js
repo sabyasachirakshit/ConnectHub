@@ -4,9 +4,7 @@ import { Button, Modal, Checkbox } from "antd";
 import { clean } from "../node_modules/profanity-cleaner/dist/profanity-cleaner";
 import "./Chat.css";
 
-const socket = io(
-  process.env.PROD_URL ? process.env.PROD_URL : "http://localhost:5000"
-);
+const socket = io(process.env.REACT_APP_PROD_URL?process.env.REACT_APP_PROD_URL:"http://localhost:5000");
 
 function App() {
   const [userId, setUserId] = useState("");
