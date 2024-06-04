@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
 import { clean } from "../node_modules/profanity-cleaner/dist/profanity-cleaner";
+import "./Chat.css";
 
 const socket = io(
   process.env.PROD_URL ? process.env.PROD_URL : "http://localhost:5000"
@@ -190,24 +191,13 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ padding: 0, margin: 0 }}>
-      <div
-        className="disclaimer"
-        style={{
-          display: "flex",
-          width: "100%",
-          justifyContent: "center",
-          marginTop: 5,
-        }}
-      >
+    <div className="App">
+      <div className="disclaimer">
         <Button onClick={showModal}>Read Disclaimer</Button>
       </div>
       {!connected ? (
         <div className="connect-container">
-          <div
-            className="interests"
-            style={{ display: "flex", gap: 10, justifyContent: "center" }}
-          >
+          <div className="interests">
             {availableInterests.map((interest) => (
               <label key={interest}>
                 <input
@@ -220,12 +210,14 @@ function App() {
               </label>
             ))}
           </div>
-          <Checkbox checked={agreement} onChange={handleCheckboxChange}>
-            I agree to the terms and conditions
-          </Checkbox>
-          <button onClick={connectToChat} style={{ width: "30%" }}>
-            Connect
-          </button>
+          <div className="connection">
+            <Checkbox checked={agreement} onChange={handleCheckboxChange}>
+              I agree to the terms and conditions
+            </Checkbox>
+            <button onClick={connectToChat} style={{ width: "30%" }}>
+              Connect
+            </button>
+          </div>
           {error && <p className="error">{error}</p>}
         </div>
       ) : (
@@ -271,8 +263,7 @@ function App() {
           </Button>,
         ]}
       >
-        <p>
-          Please be cautious when chatting with strangers online.  </p>
+        <p>Please be cautious when chatting with strangers online. </p>
       </Modal>
     </div>
   );
