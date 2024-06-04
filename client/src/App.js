@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
-import { clean } from 'profanity-cleaner';
+import { clean } from "../node_modules/profanity-cleaner/dist/profanity-cleaner";
 import "./App.css";
 
-const socket = io(process.env.PROD_URL?process.env.PROD_URL:"http://localhost:5000");
+const socket = io(
+  process.env.PROD_URL ? process.env.PROD_URL : "http://localhost:5000"
+);
 
 function App() {
   const [userId, setUserId] = useState("");
@@ -20,7 +22,9 @@ function App() {
   const [agreement, setAgreement] = useState(
     localStorage.getItem("agreedToDisclaimer") === "true"
   );
-  const badWordsArray = process.env.REACT_APP_BADWORDS?process.env.REACT_APP_BADWORDS.split(", "):[];
+  const badWordsArray = process.env.REACT_APP_BADWORDS
+    ? process.env.REACT_APP_BADWORDS.split(", ")
+    : [];
 
   const availableInterests = [
     "Sports",
@@ -34,6 +38,16 @@ function App() {
   ];
 
   useEffect(() => {
+    // Generate or retrieve user ID
+    const storedUserId = localStorage.getItem("userId");
+    if (!storedUserId) {
+      const newUserId = generateUniqueId(12);
+      localStorage.setItem("userId", newUserId);
+      setUserId(newUserId);
+    } else {
+      setUserId(storedUserId);
+    }
+
     socket.on("welcome", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -93,22 +107,40 @@ function App() {
     };
   }, []);
 
+  const generateUniqueId = (length) => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  };
+
   const connectToChat = () => {
-    if (userId.trim() && interests.length > 0 && agreement) {
+    if (userId && interests.length > 0 && agreement) {
       socket.emit("register", { userId, interests });
     } else {
       setError(
-        "Please enter a user ID, select at least one interest, and agree to the disclaimer."
+        "Please select at least one interest and agree to the disclaimer."
       );
     }
   };
 
   const sendMessage = () => {
     if (message.trim()) {
-      socket.emit("sendMessage", clean(message,{ customBadWords: badWordsArray }));
+      socket.emit(
+        "sendMessage",
+        clean(message, { customBadWords: badWordsArray })
+      );
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "You", text: clean(message,{ customBadWords: badWordsArray }) },
+        {
+          user: "You",
+          text: clean(message, { customBadWords: badWordsArray }),
+        },
       ]);
       setMessage("");
     }
@@ -137,7 +169,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="App" style={{ padding: 0, margin: 0 }}>
       <div
         className="disclaimer"
         style={{
@@ -151,12 +183,12 @@ function App() {
       </div>
       {!connected ? (
         <div className="connect-container">
-          <input
+          {/* <input
             type="text"
             placeholder="Enter your user ID"
             value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
+            readOnly
+          /> */}
           <div className="interests">
             {availableInterests.map((interest) => (
               <label key={interest}>
@@ -178,10 +210,7 @@ function App() {
               </label>
             ))}
           </div>
-          <Checkbox
-            checked={agreement}
-            onChange={handleCheckboxChange}
-          >
+          <Checkbox checked={agreement} onChange={handleCheckboxChange}>
             I agree to the terms and conditions
           </Checkbox>
           <button onClick={connectToChat} style={{ width: "30%" }}>
