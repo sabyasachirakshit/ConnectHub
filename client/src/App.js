@@ -34,7 +34,7 @@ function App() {
     "Religion",
     "Astronomy",
     "Science",
-    "Default",
+    "Default chat",
   ];
 
   useEffect(() => {
@@ -52,7 +52,7 @@ function App() {
     const storedInterests = JSON.parse(localStorage.getItem("interests")) || [];
     if (storedInterests.length === 0) {
       // If no interests are saved, default to "Default"
-      storedInterests.push("Default");
+      storedInterests.push("Default chat");
     }
     setInterests(storedInterests);
 
