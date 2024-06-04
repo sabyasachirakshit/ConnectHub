@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Button, Modal, Checkbox } from "antd";
-import { clean } from "../node_modules/profanity-cleaner/dist/profanity-cleaner";
+import { clean } from "profanity-cleaner";
 import "./Chat.css";
 
 const socket = io(process.env.REACT_APP_PROD_URL?process.env.REACT_APP_PROD_URL:"http://localhost:5000");
