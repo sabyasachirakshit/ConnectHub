@@ -188,15 +188,16 @@ function App() {
 
   const sendMessage = () => {
     if (message.trim()) {
-      socket.emit(
-        "sendMessage",
-        { text: clean(message, { customBadWords: badWordsArray }), isAdmin }
-      );
+      const cleanedMessage = isAdmin
+        ? message
+        : clean(message, { customBadWords: badWordsArray });
+
+      socket.emit("sendMessage", { text: cleanedMessage, isAdmin });
       setMessages((prevMessages) => [
         ...prevMessages,
         {
           user: isAdmin ? "Admin" : "You",
-          text: clean(message, { customBadWords: badWordsArray }),
+          text: cleanedMessage,
         },
       ]);
       setMessage("");
