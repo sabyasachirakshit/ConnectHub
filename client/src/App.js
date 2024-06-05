@@ -16,6 +16,7 @@ function App() {
   const [interests, setInterests] = useState([]);
   const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [strangerTyping, setStrangerTyping] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -132,6 +133,10 @@ function App() {
       setStrangerTyping(false);
     });
 
+    socket.on("onlineUsers", ({ online_users }) => {
+      setOnlineUsers(online_users);
+    });
+
     return () => {
       socket.off("welcome");
       socket.off("receiveMessage");
@@ -141,6 +146,7 @@ function App() {
       socket.off("chatPartnerDisconnected");
       socket.off("typing");
       socket.off("stopTyping");
+      socket.off("onlineUsers");
     };
   }, []);
 
@@ -251,7 +257,7 @@ function App() {
   return (
     <div className="App">
       <div className="disclaimer">
-        <Button onClick={showModal}>Read Disclaimer</Button>
+        <Button onClick={showModal}>Read Disclaimer</Button> <p className="online-users">Users online: {onlineUsers}</p>
       </div>
       {!connected ? (
         <div className="connect-container">

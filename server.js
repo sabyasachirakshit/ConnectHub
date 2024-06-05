@@ -19,6 +19,10 @@ const port = process.env.PORT || 5000;
 
 let users = [];
 
+const updateOnlineUsers = () => {
+  io.emit("onlineUsers", { online_users: users.length });
+};
+
 io.on("connection", (socket) => {
   console.log("New client connected:", socket.id);
 
@@ -32,6 +36,7 @@ io.on("connection", (socket) => {
       users.push({ id: socket.id, userId, interests, isAdmin, socket });
       socket.emit("connected");
       matchUser(socket);
+      updateOnlineUsers();
     }
   });
 
@@ -84,6 +89,7 @@ io.on("connection", (socket) => {
       }
     }
     users = users.filter((user) => user.id !== socket.id);
+    updateOnlineUsers();
     socket.disconnect();
   });
 
@@ -103,6 +109,7 @@ io.on("connection", (socket) => {
       }
     }
     users = users.filter((user) => user.id !== socket.id);
+    updateOnlineUsers();
   });
 });
 
@@ -138,6 +145,10 @@ const matchUser = (socket) => {
 
 app.get("/", (req, res) => {
   res.send("Server is running");
+});
+
+app.get("/online", (req, res) => {
+  res.send(JSON.stringify({ online_users: users.length }));
 });
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));
