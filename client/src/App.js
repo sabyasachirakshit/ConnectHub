@@ -12,6 +12,7 @@ const socket = io(
 
 function App() {
   const [userId, setUserId] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); 
   const [interests, setInterests] = useState([]);
   const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
@@ -49,6 +50,13 @@ function App() {
   ];
 
   useEffect(() => {
+    const adminStatus = localStorage.getItem("admin");
+    if (adminStatus) {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  useEffect(() => {
     // Generate or retrieve user ID
     const storedUserId = localStorage.getItem("userId");
     if (!storedUserId) {
@@ -77,12 +85,12 @@ function App() {
     socket.on("receiveMessage", (message) => {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { user: "Stranger", text: message },
+        { user: message.isAdmin ? "Admin" : "Stranger", text: message.text },
       ]);
     });
 
-    socket.on("matched", ({ userId, interests }) => {
-      setMatchedUser({ userId, interests });
+    socket.on("matched", ({ userId, interests, isAdmin }) => {
+      setMatchedUser({ userId, interests, isAdmin });
       setConnecting(false);
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -170,7 +178,7 @@ function App() {
       if (!socket.connected) {
         socket.connect();
       }
-      socket.emit("register", { userId, interests });
+      socket.emit("register", { userId, interests, isAdmin });
     } else {
       setError(
         "Please select at least one interest and agree to the disclaimer."
@@ -182,12 +190,12 @@ function App() {
     if (message.trim()) {
       socket.emit(
         "sendMessage",
-        clean(message, { customBadWords: badWordsArray })
+        { text: clean(message, { customBadWords: badWordsArray }), isAdmin }
       );
       setMessages((prevMessages) => [
         ...prevMessages,
         {
-          user: "You",
+          user: isAdmin ? "Admin" : "You",
           text: clean(message, { customBadWords: badWordsArray }),
         },
       ]);
@@ -283,7 +291,7 @@ function App() {
                     msg.user === "You" ? "sent" : ""
                   } 
                   ${
-                    msg.user === "Stranger" ? "received" : ""
+                    msg.user === "Stranger" || msg.user === "Admin" ? "received" : ""
                   } 
                   
                   ${
