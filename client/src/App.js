@@ -4,13 +4,19 @@ import { Button, Modal, Checkbox } from "antd";
 import { clean } from "profanity-cleaner";
 import "./Chat.css";
 
-const socket = io(process.env.REACT_APP_PROD_URL?process.env.REACT_APP_PROD_URL:"http://localhost:5000");
+const socket = io(
+  process.env.REACT_APP_PROD_URL
+    ? process.env.REACT_APP_PROD_URL
+    : "http://localhost:5000"
+);
 
 function App() {
   const [userId, setUserId] = useState("");
   const [interests, setInterests] = useState([]);
   const [msg, setMsg] = useState("");
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [strangerTyping, setStrangerTyping] = useState(false);
   const [messages, setMessages] = useState([]);
   const [matchedUser, setMatchedUser] = useState(null);
   const [error, setError] = useState(null);
@@ -104,6 +110,14 @@ function App() {
       setConnecting(false);
     });
 
+    socket.on("typing", () => {
+      setStrangerTyping(true);
+    });
+
+    socket.on("stopTyping", () => {
+      setStrangerTyping(false);
+    });
+
     return () => {
       socket.off("welcome");
       socket.off("receiveMessage");
@@ -111,6 +125,8 @@ function App() {
       socket.off("connected");
       socket.off("error");
       socket.off("chatPartnerDisconnected");
+      socket.off("typing");
+      socket.off("stopTyping");
     };
   }, []);
 
@@ -124,6 +140,23 @@ function App() {
       );
     }
     return result;
+  };
+
+  const handleTyping = (e) => {
+    setMessage(e.target.value);
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing");
+    }
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(stopTyping, 2000);
+  };
+
+  let typingTimeout;
+
+  const stopTyping = () => {
+    setIsTyping(false);
+    socket.emit("stopTyping");
   };
 
   const connectToChat = () => {
@@ -234,19 +267,26 @@ function App() {
                   <strong>{msg.user}:</strong> {msg.text}
                 </div>
               ))}
+              {strangerTyping && (
+                <div className="typing-status">
+                  <em>Stranger is typing...</em>
+                </div>
+              )}
             </div>
           )}
 
           <div className="input-container">
             <input
-            className="text-bar"
+              className="text-bar"
               type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={handleTyping}
               onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type a message..."
             />
-            <button className="send-button" onClick={sendMessage}>Send</button>
+            <button className="send-button" onClick={sendMessage}>
+              Send
+            </button>
           </div>
         </div>
       )}

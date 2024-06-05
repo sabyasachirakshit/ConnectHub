@@ -42,6 +42,26 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('typing', () => {
+    const sender = users.find((user) => user.id === socket.id);
+    if (sender && sender.match) {
+      const recipient = users.find((user) => user.id === sender.match);
+      if (recipient) {
+        recipient.socket.emit('typing');
+      }
+    }
+  });
+
+  socket.on('stopTyping', () => {
+    const sender = users.find((user) => user.id === socket.id);
+    if (sender && sender.match) {
+      const recipient = users.find((user) => user.id === sender.match);
+      if (recipient) {
+        recipient.socket.emit('stopTyping');
+      }
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
     const disconnectedUser = users.find((user) => user.id === socket.id);
