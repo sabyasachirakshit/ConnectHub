@@ -161,6 +161,9 @@ function App() {
 
   const connectToChat = () => {
     if (userId && interests.length > 0 && agreement) {
+      if (!socket.connected) {
+        socket.connect();
+      }
       socket.emit("register", { userId, interests });
     } else {
       setError(
@@ -219,6 +222,15 @@ function App() {
       localStorage.setItem("interests", JSON.stringify(newInterests));
       return newInterests;
     });
+  };
+
+  const handleDisconnect = () => {
+    socket.emit("manualDisconnect");
+    socket.disconnect();
+    setConnected(false);
+    setConnecting(false);
+    setMatchedUser(null);
+    setMessages([]);
   };
 
   return (
@@ -286,6 +298,9 @@ function App() {
             />
             <button className="send-button" onClick={sendMessage}>
               Send
+            </button>
+            <button className="disconnect-button" onClick={handleDisconnect}>
+              Disconnect
             </button>
           </div>
         </div>
